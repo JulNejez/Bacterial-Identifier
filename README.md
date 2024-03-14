@@ -1,0 +1,1 @@
+Bacterial Identifier is an interactive tool for bacterial identification. Backend of the app is implemented in shell script and Python3 and frontend of the app is implemented in Python3 using the Tkinter. 
