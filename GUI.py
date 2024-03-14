@@ -66,18 +66,10 @@ def button3_click():
         # Starting loading bar animation
         animate_loading_bar()
 
-        if cd_hit.get()==1 and fastAni.get()==0 and blast.get()==0:
+        if cd_hit.get()==1 and blast.get()==0:
             methods = "cd_hit"
-        elif cd_hit.get()==0 and fastAni.get()==1 and blast.get()==0:
-            methods = "fastAni"
-        elif cd_hit.get()==0 and fastAni.get()==0 and blast.get()==1:
+        elif cd_hit.get()==0 and blast.get()==1:
             methods = "blast"
-        elif cd_hit.get()==1 and fastAni.get()==1 and blast.get()==0:
-            methods = "cd_fast"
-        elif cd_hit.get()==1 and fastAni.get()==0 and blast.get()==1:
-            methods = "cd_blast"
-        elif cd_hit.get()==0 and fastAni.get()==1 and blast.get()==1:
-            methods = "fast_blast"
         else:
             methods = "all"
         print(methods)
@@ -107,7 +99,7 @@ def button3_click():
         messagebox.showerror("Error", "You don't load unknown bacterial genome!")
     elif not database_path:
         messagebox.showerror("Error", "You don't load reference database!")
-    elif cd_hit.get() == 0 and fastAni.get()==0 and blast.get()== 0:
+    elif cd_hit.get() == 0 and blast.get()== 0:
         messagebox.showerror("Error", "Select method!")
 
 
@@ -161,8 +153,7 @@ blast = tk.IntVar()
 
 # Create checkboxes
 checkbox1 = tk.Checkbutton(root, text="Cd-hit", variable=cd_hit, bg="cornflowerblue")
-checkbox2 = tk.Checkbutton(root, text="FastANI", variable=fastAni, bg="azure")
-checkbox3 = tk.Checkbutton(root, text="BLAST", variable=blast, bg="cornflowerblue")
+checkbox2 = tk.Checkbutton(root, text="BLAST", variable=blast, bg="cornflowerblue")
 
 # Create buttons
 button1 = tk.Button(root, text="Upload", command=button1_click)
@@ -199,8 +190,6 @@ lbl5 = Label(root, text="Set threshold", fg='black', font=("Helvetica", 14), bg=
 # Wudget location in root
 checkbox1.place(x=30, y=60)
 checkbox2.place(x=30, y=80)
-checkbox3.place(x=30, y=100)
-checkbox3.place(x=30, y=90)
 button1.place(x=440, y=55)
 button2.place(x=440, y=85)
 button3.place(x=200, y=160)
