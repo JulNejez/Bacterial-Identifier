@@ -30,7 +30,7 @@ fi
 
 ### Cd-hit
 echo "$methods"
-if [ "$methods" = "cd_hit" ] || [ "$methods" = "cd_fast" ] || [ "$methods" = "cd_blast" ] || [ "$methods" = "all" ]; then
+if [ "$methods" = "cd_hit" ] || [ "$methods" = "all" ]; then
   echo "Starting Cd-hit"
 
   # Create multifasta
@@ -57,39 +57,9 @@ if [ "$methods" = "cd_hit" ]; then
   fi
 fi
 
-
-
-### FastANI
-if [ "$methods" = "fastAni" ] || [ "$methods" = "cd_fast" ] || [ "$methods" = "fast_blast" ] || [ "$methods" = "all" ] ; then
-  cd "$reference_path"
-  echo "FastANI starting!"
-  start_time=$(date +%s.%N)
-  fastANI -q "$input_file" --rl "$reference_path"/genomes_list.txt --matrix -o "$working_directory"/fast_ANI_results.txt -t 6
-  end_time=$(date +%s.%N)
-  cd "$working_directory"
-  # Analysis of fast
-  python3 fastANI_analysis.py "$threshold"
-  echo "FastANI finished!"
-fi
-
-if [ "$methods" = "fastAni" ]; then
-  if [ -s "fastANI_output.txt" ]; then
-    echo "A significant match with these bacteria was found for an unknown bacterium: "
-    cat "fastAni_output.txt"
-    #elapsed_time=$(echo "$end_time - $start_time" | bc)
-    #echo "Čas trvání: $elapsed_time sekund"
-  else
-    echo "No bacterium is identical enough to an unknown bacterium!"
-    #elapsed_time=$(echo "$end_time - $start_time" | bc)
-    #echo "Čas trvání: $elapsed_time sekund"
-  fi
-fi
-
-
-
 ## BLAST
 
-if [ "$methods" = "blast" ] || [ "$methods" = "cd_blast" ] || [ "$methods" = "fast_blast" ] || [ "$methods" = "all" ]; then
+if [ "$methods" = "blast" ] || [ "$methods" = "all" ]; then
   echo "Starting BLAST"
   makeblastdb -in multifasta.fasta -dbtype nucl -out blast_database
   start_time=$(date +%s.%N)
@@ -121,55 +91,21 @@ fi
 
 cd "$working_directory"
 
-if [ "$methods" = "cd_fast" ]; then
-  sort -u fast_ANI_final.txt > fast_ANI_final_sorted.txt
-  sort -u cluster_similar_bacteria.txt > cluster_similar_bacteria_sorted.txt
-  grep -F -f fast_ANI_final_sorted.txt cluster_similar_bacteria_sorted.txt > final.txt
-  cat fast_ANI_final.txt cluster_similar_bacteria.txt | sort -u > all_possible_bacteria.txt
+if [ "$methods" = "all" ]; then
+  # delete duplicates
+  sort -u blast_similar_final.txt -o blast_similar_final.txt
+  sort blast_similar_final.txt > blast_similar_final_sorted.txt
+  sort cluster_similar_bacteria.txt > cluster_similar_bacteria_sorted.txt
 
-  rm fast_ANI_final_sorted.txt
-  rm cluster_similar_bacteria_sorted.txt
-
-elif [ "$methods" = "cd_blast" ]; then
-  sort -u blast_similar_final.txt > blast_similar_final_sorted.txt
-  sort -u cluster_similar_bacteria.txt > cluster_similar_bacteria_sorted.txt
-  grep -F -f blast_similar_final_sorted.txt cluster_similar_bacteria_sorted.txt > final.txt
+  comm -12 blast_similar_final_sorted.txt | comm -12 - cluster_similar_bacteria_sorted.txt > final.txt
   cat blast_similar_final.txt cluster_similar_bacteria.txt | sort -u > all_possible_bacteria.txt
 
   rm blast_similar_final_sorted.txt
   rm cluster_similar_bacteria_sorted.txt
 
-elif [ "$methods" = "fast_blast" ]; then
-  sort -u blast_similar_final.txt > blast_similar_final_sorted.txt
-  sort -u fast_ANI_final.txt > fast_ANI_final_sorted.txt
-  grep -F -f blast_similar_final_sorted.txt fast_ANI_final_sorted.txt > final.txt
-  cat blast_similar_final.txt fast_ANI_final.txt | sort -u > all_possible_bacteria.txt
-
-  rm fast_ANI_final_sorted.txt
-  rm cluster_similar_bacteria_sorted.txt
-
-elif [ "$methods" = "all" ]; then
-  # delete duplicates
-  sort -u blast_similar_final.txt -o blast_similar_final.txt
-  sort blast_similar_final.txt > blast_similar_final_sorted.txt
-  sort fast_ANI_final.txt > fast_ANI_final_sorted.txt
-  sort cluster_similar_bacteria.txt > cluster_similar_bacteria_sorted.txt
-
-  comm -12 blast_similar_final_sorted.txt fast_ANI_final_sorted.txt | comm -12 - cluster_similar_bacteria_sorted.txt > final.txt
-  cat blast_similar_final.txt fast_ANI_final.txt cluster_similar_bacteria.txt | sort -u > all_possible_bacteria.txt
-
-
-  rm blast_similar_final_sorted.txt
-  rm fast_ANI_final_sorted.txt
-  rm cluster_similar_bacteria_sorted.txt
-
 elif [ "$methods" = "cd_hit" ]; then
   sort cluster_similar_bacteria.txt > all_possible_bacteria.txt
   sort cluster_similar_bacteria.txt > final.txt
-
-elif [ "$methods" = "fastAni" ]; then
-  sort fast_ANI_final.txt > all_possible_bacteria.txt
-  sort fast_ANI_final.txt > final.txt
 
 elif [ "$methods" = "blast" ]; then
   # delete duplicates
